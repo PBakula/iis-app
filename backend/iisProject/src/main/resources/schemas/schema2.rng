@@ -1,0 +1,52 @@
+<rng:grammar xmlns:rng="http://relaxng.org/ns/structure/1.0"
+             xmlns="http://interoperabilnost.hr/students"
+             datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+    <rng:start>
+        <rng:element name="students" ns="http://interoperabilnost.hr/students">
+            <rng:zeroOrMore>
+                <rng:element name="student">
+                    <rng:element name="Student_ID">
+                        <rng:data type="integer"/>
+                    </rng:element>
+                    <rng:optional>
+                        <rng:element name="Study_Hours_Per_Day">
+                            <rng:data type="double"/>
+                        </rng:element>
+                    </rng:optional>
+                    <rng:optional>
+                        <rng:element name="Extracurricular_Hours_Per_Day">
+                            <rng:data type="double"/>
+                        </rng:element>
+                    </rng:optional>
+                    <rng:optional>
+                        <rng:element name="Sleep_Hours_Per_Day">
+                            <rng:data type="double"/>
+                        </rng:element>
+                    </rng:optional>
+                    <rng:optional>
+                        <rng:element name="Social_Hours_Per_Day">
+                            <rng:data type="double"/>
+                        </rng:element>
+                    </rng:optional>
+                    <rng:optional>
+                        <rng:element name="Physical_Activity_Hours_Per_Day">
+                            <rng:data type="double"/>
+                        </rng:element>
+                    </rng:optional>
+                    <rng:optional>
+                        <rng:element name="GPA">
+                            <rng:data type="double"/>
+                        </rng:element>
+                    </rng:optional>
+                    <rng:optional>
+                        <rng:element name="Stress_Level">
+                            <rng:text/>
+                        </rng:element>
+                    </rng:optional>
+                </rng:element>
+            </rng:zeroOrMore>
+        </rng:element>
+    </rng:start>
+
+</rng:grammar>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://interoperabilnost.hr/students"
+        xmlns="http://interoperabilnost.hr/students"
+        elementFormDefault="qualified">
+
+    <xs:element name="students">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="student" type="StudentType" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="StudentType">
+        <xs:sequence>
+            <xs:element name="Student_ID" type="xs:int" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="Study_Hours_Per_Day" type="xs:double" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="Extracurricular_Hours_Per_Day" type="xs:double" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="Sleep_Hours_Per_Day" type="xs:double" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="Social_Hours_Per_Day" type="xs:double" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="Physical_Activity_Hours_Per_Day" type="xs:double" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="GPA" type="xs:double" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="Stress_Level" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

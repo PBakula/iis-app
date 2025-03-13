@@ -1,0 +1,255 @@
+openapi: 3.0.1
+info:
+  title: Interoperabilnost Informacijskih Sustava API
+  description: API dokumentacija za projekt interoperabilnosti informacijskih sustava koji demonstrira XML procesiranje, SOAP servise i XML-RPC integraciju
+  contact:
+    email: student@algebra.hr
+  version: 1.0.0
+servers:
+  - url: http://localhost:8087
+    description: Lokalni razvojni server
+tags:
+  - name: autentikacija
+    description: Operacije za prijavu i upravljanje tokenima
+  - name: xml
+    description: Operacije za validaciju i manipulaciju XML podataka
+  - name: weather
+    description: Operacije za dohvat meteoroloških podataka preko XML-RPC-a
+  - name: soap
+    description: SOAP web servisi (dostupni na /ws endpoint)
+paths:
+  /rest/login:
+    post:
+      tags:
+        - autentikacija
+      summary: Prijava korisnika
+      description: Autentikacija korisnika i generiranje JWT tokena za pristup zaštićenim resursima
+      operationId: login
+      requestBody:
+        description: Podaci za prijavu
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequestDTO'
+        required: true
+      responses:
+        '200':
+          description: Uspješna prijava
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponseDTO'
+        '401':
+          description: Neispravni podaci za prijavu
+  /rest/refreshToken:
+    post:
+      tags:
+        - autentikacija
+      summary: Obnova JWT tokena
+      description: Generiranje novog pristupnog tokena pomoću refresh tokena
+      operationId: refreshToken
+      requestBody:
+        description: Podaci za obnovu tokena
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequestDTO'
+        required: true
+      responses:
+        '200':
+          description: Uspješna obnova tokena
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponseDTO'
+        '400':
+          description: Nevažeći refresh token
+  /api/xml/validateAndSave:
+    post:
+      tags:
+        - xml
+      summary: Validacija i spremanje XML-a
+      description: Validacija XML dokumenta prema XSD ili RNG shemi i spremanje u bazu podataka
+      operationId: validateAndSaveXml
+      parameters:
+        - name: validationType
+          in: query
+          description: Tip validacije (XSD ili RNG)
+          required: false
+          schema:
+            type: string
+            enum: [xsd, rng]
+            default: xsd
+      requestBody:
+        description: XML sadržaj za validaciju
+        content:
+          text/plain:
+            schema:
+              type: string
+            example: |
+              <students xmlns="http://interoperabilnost.hr/students">
+                <student>
+                  <Student_ID>1</Student_ID>
+                  <Study_Hours_Per_Day>6.5</Study_Hours_Per_Day>
+                  <Extracurricular_Hours_Per_Day>2.0</Extracurricular_Hours_Per_Day>
+                  <Sleep_Hours_Per_Day>7.5</Sleep_Hours_Per_Day>
+                  <Social_Hours_Per_Day>2.0</Social_Hours_Per_Day>
+                  <Physical_Activity_Hours_Per_Day>1.0</Physical_Activity_Hours_Per_Day>
+                  <GPA>4.5</GPA>
+                  <Stress_Level>Medium</Stress_Level>
+                </student>
+              </students>
+        required: true
+      responses:
+        '200':
+          description: XML je validan i spremljen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  xmlContent:
+                    type: string
+        '400':
+          description: XML nije validan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  xmlContent:
+                    type: string
+        '500':
+          description: Greška servera
+      security:
+        - bearerAuth: []
+  /api/weather/temperature:
+    get:
+      tags:
+        - weather
+      summary: Dohvat temperature za grad
+      description: Dohvat trenutne temperature za određeni grad korištenjem XML-RPC servisa
+      operationId: getTemperature
+      parameters:
+        - name: cityName
+          in: query
+          description: Ime grada
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Uspješan dohvat temperature
+          content:
+            text/plain:
+              schema:
+                type: string
+        '500':
+          description: Greška prilikom dohvata temperature
+      security:
+        - bearerAuth: []
+  /api/weather/cities:
+    get:
+      tags:
+        - weather
+      summary: Dohvat gradova prema upitu
+      description: Dohvat liste gradova koji odgovaraju upitu korištenjem XML-RPC servisa
+      operationId: getMatchingCities
+      parameters:
+        - name: cityName
+          in: query
+          description: Dio imena grada za pretragu
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Uspješan dohvat gradova
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '500':
+          description: Greška prilikom dohvata gradova
+      security:
+        - bearerAuth: []
+components:
+  schemas:
+    AuthRequestDTO:
+      type: object
+      properties:
+        username:
+          type: string
+          example: admin
+        password:
+          type: string
+          example: password
+    JwtResponseDTO:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        token:
+          type: string
+          description: Refresh token
+          example: 954f710d-14eb-4b4c-8d83-c308b6a73858
+    RefreshTokenRequestDTO:
+      type: object
+      properties:
+        token:
+          type: string
+          example: 954f710d-14eb-4b4c-8d83-c308b6a73858
+    StudentDataDTO:
+      type: object
+      properties:
+        studentId:
+          type: integer
+          format: int32
+          example: 1
+        studyHoursPerDay:
+          type: number
+          format: double
+          example: 6.5
+        extracurricularHoursPerDay:
+          type: number
+          format: double
+          example: 2.0
+        sleepHoursPerDay:
+          type: number
+          format: double
+          example: 7.5
+        socialHoursPerDay:
+          type: number
+          format: double
+          example: 2.0
+        physicalActivityHoursPerDay:
+          type: number
+          format: double
+          example: 1.0
+        gpa:
+          type: number
+          format: double
+          example: 4.5
+        stressLevel:
+          type: string
+          example: Medium
+    StudentsDataDTO:
+      type: object
+      properties:
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentDataDTO'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "JWT autentikacija. Unesite JWT token u sljedećem formatu: Bearer {token}"
